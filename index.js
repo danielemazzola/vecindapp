@@ -4,7 +4,7 @@ const CORS = require('cors');
 
 // ROUTES
 const ENV = require('./src/config/config.env');
-const connectCloudinary = require('./src/config/cloudinary');
+const CONNECT_CLOUDINARY = require('./src/config/cloudinary');
 const CONNECT_DDBB = require('./src/config/connectDDBB');
 
 const APP = EXPRESS();
@@ -16,7 +16,7 @@ APP.use(EXPRESS.urlencoded({ extended: true }));
 CONNECT_DDBB()
 
 // CLOUDINARY
-connectCloudinary()
+CONNECT_CLOUDINARY()
 
 // MAIN ROUTES
 const ROUTES = require('./src/routes/main.routes');
