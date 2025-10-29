@@ -12,6 +12,7 @@ const communitySchema = new Schema({
   postal_code: { type: String, trim: true, required: true },
   city: { type: String, trim: true, required: true },
   country: { type: String, trim: true, required: true },
+  province: { type: String, trim: true },
   location: {
     type: {
       type: String,

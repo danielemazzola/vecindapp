@@ -9,7 +9,7 @@ const isAuth = async (req, res, next) => {
     }
     const isToken = VERIFY_TOKEN(token)
     const user = await USER_MODEL.findById(isToken.id).select('-password')
-    if (!user) return res.status(401).json({ message: 'Admin not exist.' })
+    if (!user) return res.status(401).json({ message: 'User not exist.' })
     req.user = user;
     next();
   } catch (error) {

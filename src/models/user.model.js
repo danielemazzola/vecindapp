@@ -10,6 +10,7 @@ const userSchema = new Schema({
   address: { type: String, trim: true },
   postal_code: { type: String, trim: true },
   city: { type: String, trim: true },
+  province: { type: String, trim: true },
   country: { type: String, trim: true },
   location: {
     type: {
@@ -20,7 +21,7 @@ const userSchema = new Schema({
       type: [Number], // [longitude, latitude]
     },
   },
-  taxId: { type: String, trim: true }, // NIT / CIF / RUC
+  taxId: { type: String, trim: true, default: null }, // NIT / CIF / RUC
   password: { type: String, minlength: 6 },
   avatar: {
     type: String,

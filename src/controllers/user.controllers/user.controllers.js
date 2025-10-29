@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const USER_MODEL = require("../../models/user.model");
+const COUNTRY_MODEL = require('../../models/country.model');
 const { CREATE_TOKEN } = require('../../config/jsonwebtoken');
 const fetchGeoCode = require("../../config/fetchGeoCode");
 const formatForURL = require("../../helpers/formatForURL");
@@ -7,10 +8,19 @@ const { deleteImg } = require('../../helpers/delete.avatar');
 
 const CREATE_USER = async (req, res, next) => {
   try {
-    const { name, lastname, phone, email, address, postal_code, city, country, taxId, password } = req.body;
+    const { name, lastname, phone, email, address, postal_code, city, country, province, taxId, password } = req.body;
     // VALIDATIONS
-    if (!name || !lastname || !phone || !email || !password) {
-      const error = new Error('Name, last name, phone, email, and password are required.');
+    if (!name || !lastname || !phone || !email || !address || !postal_code || !city || !country || !province || !password) {
+      const error = new Error('All fields are required.');
+      error.status = 400;
+      return next(error);
+    }
+
+    const COUNTRY_REGISTER = await COUNTRY_MODEL.findOne({ country })
+    console.log(COUNTRY_REGISTER);
+
+    if (!COUNTRY_REGISTER) {
+      const error = new Error('Country is not exist.');
       error.status = 400;
       return next(error);
     }
@@ -20,14 +30,15 @@ const CREATE_USER = async (req, res, next) => {
     const newCity = formatForURL(city);
     const newAddress = formatForURL(address);
     const newPC = formatForURL(postal_code);
-    const geocodeData = await fetchGeoCode(newCountry, newAddress, newCity, newPC);
+    const newProvince = formatForURL(province);
+    const geocodeData = await fetchGeoCode(newProvince, newCountry, newAddress, newCity, newPC);
     if (!geocodeData) {
       return res.status(400).json({ message: 'Unable to fetch geolocation data. Please check the address information and try again.' });
     }
 
     // CREATE USER
     const NEW_USER = new USER_MODEL({
-      name, lastname, phone, email, address, postal_code, city, country, taxId, password,
+      name, lastname, phone, email, address, postal_code, city, country, province, taxId, password,
       location: {
         type: 'Point',
         coordinates: [parseFloat(geocodeData[0].lon), parseFloat(geocodeData[0].lat)]
@@ -36,7 +47,8 @@ const CREATE_USER = async (req, res, next) => {
 
     const SAVED_USER = await NEW_USER.save();
     return res.status(201).json({
-      message: 'User created successfully.'
+      message: 'User created successfully.',
+      user: SAVED_USER
     });
 
   } catch (error) {
@@ -104,7 +116,7 @@ const LOGIN_USER = async (req, res, next) => {
   }
 }
 
-const UPDATE_USER = async (req, res, next) => {
+const UPDATE_USER_ADMIN = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { name, lastname, phone, email, address, postal_code, city, country, taxId, password } = req.body;
@@ -184,6 +196,86 @@ const UPDATE_USER = async (req, res, next) => {
   }
 };
 
+const UPDATE_USER = async (req, res, next) => {
+  try {
+    const {_id} = req.user
+    const { name, lastname, phone, email, address, postal_code, city, country, taxId, password } = req.body;
+
+    const user = await USER_MODEL.findById(_id);
+    if (!user) {
+      const error = new Error('User not found.');
+      error.status = 404;
+      return next(error);
+    }
+
+    // Prepare updates object
+    const updates = {};
+    const updatedFields = [];
+
+    const fieldsToCheck = { name, lastname, phone, email, address, postal_code, city, country, taxId };
+
+    // Check which fields changed
+    for (const [key, value] of Object.entries(fieldsToCheck)) {
+      if (value && value !== user[key]) {
+        updates[key] = value;
+        updatedFields.push(key);
+      }
+    }
+
+    // If address or location-related fields changed, update geolocation
+    if (['address', 'city', 'postal_code', 'country'].some(f => updatedFields.includes(f))) {
+      const newCountry = formatForURL(country || user.country);
+      const newCity = formatForURL(city || user.city);
+      const newAddress = formatForURL(address || user.address);
+      const newPC = formatForURL(postal_code || user.postal_code);
+
+      const geocodeData = await fetchGeoCode(newCountry, newAddress, newCity, newPC);
+      if (!geocodeData) {
+        return res.status(400).json({
+          message: 'Unable to fetch geolocation data. Please check the address information and try again.'
+        });
+      }
+
+      updates.location = {
+        type: 'Point',
+        coordinates: [parseFloat(geocodeData[0].lon), parseFloat(geocodeData[0].lat)]
+      };
+      updatedFields.push('location');
+    }
+
+    // If there is a password update, hash it
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 8);
+      updates.password = hashedPassword;
+      updatedFields.push('password');
+    }
+
+    const updatedUser = await USER_MODEL.findByIdAndUpdate(
+      _id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    ).select('-password')
+
+    if (!updatedUser) {
+      const error = new Error('User not found.');
+      error.status = 404;
+      return next(error);
+    }
+
+    return res.status(200).json({
+      message: 'User updated successfully.',
+      updatedFields,
+      user: updatedUser
+    });
+
+  } catch (error) {
+    console.error('Error in UPDATE_USER:', error);
+    const err = new Error('Error updating user. Please try again later.');
+    err.status = 500;
+    return next(err);
+  }
+};
+
 const PROFILE_USER = async (req, res, next) => {
   try {
     const { user } = req
@@ -208,7 +300,7 @@ const UPDATE_AVATAR = async (req, res, next) => {
       { $set: { avatar: req.body.image } },
       { new: true }
     ).select('-password')
-      
+
     return res.status(200).json({ message: 'Update avatar', avatar })
   } catch (error) {
     console.error('UPDATE_AVATAR Controller', error)
@@ -220,6 +312,7 @@ const UPDATE_AVATAR = async (req, res, next) => {
 module.exports = {
   CREATE_USER,
   LOGIN_USER,
+  UPDATE_USER_ADMIN,
   UPDATE_USER,
   PROFILE_USER,
   UPDATE_AVATAR

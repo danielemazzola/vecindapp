@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const countrySchema = new mongoose.Schema({
   code: { type: String, trim: true, required: true, unique: true, uppercase: true },
-  country: { type: String, trim: true, required: true, unique: true, uppercase: true },
+  country: { type: String, trim: true, required: true, uppercase: true },
   creator: { type: mongoose.Types.ObjectId, ref: 'users' },
   userUpdate: [
     {

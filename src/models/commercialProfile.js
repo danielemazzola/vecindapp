@@ -9,11 +9,7 @@ const commercialProfileSchema = new Schema({
     unique: true,
   }],
   companyName: { type: String, required: true, trim: true },
-  identification: {
-    type: String,
-    required: true,
-    trim: true
-  }, // NIF / NIE / CIF / DNI
+  identification: { type: String, required: true, trim: true }, // NIF / NIE / CIF / DNI
   contactEmail: { type: String, required: true, trim: true, lowercase: true },
   contactPhone: { type: String, required: true, trim: true },
   website: { type: String, trim: true },
@@ -21,7 +17,10 @@ const commercialProfileSchema = new Schema({
   postalCode: { type: String, trim: true },
   city: { type: String, trim: true },
   province: { type: String, trim: true },
-  country: { type: String, trim: true, default: 'España' },
+  country: {
+    type: Schema.Types.ObjectId,
+    ref: 'countries'
+  },
   location: {
     type: {
       type: String,
