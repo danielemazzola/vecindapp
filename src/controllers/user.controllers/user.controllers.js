@@ -17,7 +17,6 @@ const CREATE_USER = async (req, res, next) => {
     }
 
     const COUNTRY_REGISTER = await COUNTRY_MODEL.findOne({ country })
-    console.log(COUNTRY_REGISTER);
 
     if (!COUNTRY_REGISTER) {
       const error = new Error('Country is not exist.');
@@ -198,7 +197,7 @@ const UPDATE_USER_ADMIN = async (req, res, next) => {
 
 const UPDATE_USER = async (req, res, next) => {
   try {
-    const {_id} = req.user
+    const { _id } = req.user
     const { name, lastname, phone, email, address, postal_code, city, country, taxId, password } = req.body;
 
     const user = await USER_MODEL.findById(_id);
