@@ -2,7 +2,7 @@ const express = require('express');
 const COUNTRY_ROUTES = express.Router();
 
 // CONTROLLERS
-const { CREATE_COUNTRY, UPDATE_COUNTRY, GET_COUNTRY } = require('../../controllers/country.controllers/country.controllers');
+const { CREATE_COUNTRY, UPDATE_COUNTRY, GET_COUNTRIES } = require('../../controllers/country.controllers/country.controllers');
 
 // MIDDLEWARES
 const { isAuth } = require('../../middlewares/isAuth.middleware');
