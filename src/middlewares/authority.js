@@ -21,6 +21,7 @@ const authority = async (req, res, next) => {
     // If the user has the "admin" role, grant access immediately.
     // The `return` ensures that execution stops here.
     if (user.roles.includes('admin')) {
+      req.roleType = 'admin';
       return next();
     }
 
@@ -29,45 +30,36 @@ const authority = async (req, res, next) => {
     // Look up all license assignments associated with the user's ID.
     // The `.populate('license')` call automatically retrieves
     // the referenced license document to avoid a second query.
-    const assignments = await LICENSE_ASSIGNMENT.find({ user: user._id }).populate('license');
+    const assignments = await LICENSE_ASSIGNMENT.find({ user: user._id, isActive: true }).populate('license');
 
     if (!assignments.length) {
-      return res.status(403).json({ message: 'No licenses found for this user.' });
+      return res.status(403).json({ message: 'No active licenses found for this user.' });
     }
 
     // STEP 3: FILTER LICENSES THAT ARE CAM-TYPE
     // --------------------------------
     // Only users with a CAM-type license can proceed.
-    const camLicenses = assignments.filter(l => l.camType === true);
+    const camLicenses = assignments.filter(a => a.camType?.cam === true && a.isActive && a.license?.isActive);
 
     if (!camLicenses.length) {
-      return res.status(403).json({ message: 'You do not have any CAM-type licenses.' });
+      return res.status(403).json({ message: 'You do not have any active CAM-type licenses.' });
     }
 
     // STEP 4: VALIDATE LICENSE REFERENCE
     // --------------------------------
     // Since licenses are populated, we can directly access the license object.
-    const license = camLicenses[0].license;
-
-    if (!license) {
-      return res.status(403).json({ message: 'Associated license not found.' });
-    }
-
-    // STEP 5: CHECK LICENSE CAPACITY
-    // --------------------------------
-    // Verify if there is remaining capacity (beneficiaries)
-    // available within the license limits.
-    const hasAvailableSlots = camLicenses.some(
-      l => l.remainingBeneficiaries < license.limits.maxCommunities
-    );
+    const hasAvailableSlots = camLicenses.some(a => {
+      const currentCount = a.camType.beneficiaries.length;
+      const max = a.license.limits.maxCommunities;
+      return currentCount < max;
+    });
 
     if (!hasAvailableSlots) {
       return res.status(403).json({ message: 'No remaining capacity to create a new community.' });
     }
 
-    // STEP 6: GRANT ACCESS
-    // --------------------------------
-    // All checks passed — allow request to continue.
+    req.roleType = 'cam';
+    req.licenseAssignments = camLicenses;
     next();
 
   } catch (error) {

@@ -1,28 +1,32 @@
 const fetchGeoCode = require('../../config/fetchGeoCode');
 const COMMUNITY_MODEL = require('../../models/community.model');
 const formatForURL = require('../../helpers/formatForURL');
+const LICENSE_ASSIGNMENT = require('../../models/licenseAssignment');
 
 const CREATE_COMMUNITY = async (req, res, next) => {
   try {
     const { name, description, email, phone, address, postal_code, city, country, province } = req.body;
-    const { user } = req
+    const { user, roleType, licenseAssignments } = req;
+
+    // Validar campos requeridos
     if (!name || !description || !email || !phone || !address || !postal_code || !city || !country) {
-      return res.status(400).json({
-        message: 'All marked fields are required'
-      });
+      return res.status(400).json({ message: 'All marked fields are required.' });
     }
 
-    const newCountry = formatForURL(country)
-    const newCity = formatForURL(city);
-    const newAddress = formatForURL(address);
-    const newPC = formatForURL(postal_code);
-    const newProvince = formatForURL(province);
-    const geocodeData = await fetchGeoCode(newProvince, newCountry, newAddress, newCity, newPC);
+    // Geocodificación
+    const geoData = await fetchGeoCode(
+      formatForURL(province),
+      formatForURL(country),
+      formatForURL(address),
+      formatForURL(city),
+      formatForURL(postal_code)
+    );
 
-    if (!geocodeData) {
+    if (!geoData?.length) {
       return res.status(400).json({ message: 'Unable to fetch geolocation data. Please check the address information and try again.' });
     }
 
+    // Crear comunidad
     const newCommunity = new COMMUNITY_MODEL({
       name,
       description,
@@ -35,12 +39,20 @@ const CREATE_COMMUNITY = async (req, res, next) => {
       province,
       location: {
         type: 'Point',
-        coordinates: [parseFloat(geocodeData[0].lon), parseFloat(geocodeData[0].lat)]
+        coordinates: [parseFloat(geoData[0].lon), parseFloat(geoData[0].lat)]
       },
       creatorId: user._id
     });
 
     await newCommunity.save();
+
+    // Si es CAM, añadir a beneficiarios
+    if (roleType === 'cam') {
+      const assignment = licenseAssignments[0]; // usa la primera licencia válida
+      assignment.camType.beneficiaries.push(newCommunity._id);
+      assignment.remainingBeneficiaries =+ 1
+      await assignment.save();
+    }
 
     return res.status(201).json({
       message: 'Community created successfully',
@@ -49,10 +61,8 @@ const CREATE_COMMUNITY = async (req, res, next) => {
 
   } catch (error) {
     console.error('ERROR CREATE_COMMUNITY -> CONTROLLER:', error);
-    next(error)
+    next(error);
   }
 };
 
-module.exports = {
-  CREATE_COMMUNITY
-};
+module.exports = { CREATE_COMMUNITY };
