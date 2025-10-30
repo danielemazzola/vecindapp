@@ -5,7 +5,6 @@ const communitySchema = new Schema({
   name: { type: String, required: true, trim: true },
   description: { type: String, trim: true, required: true },
   members: [{ type: Schema.Types.ObjectId, ref: 'users', default: [] }],
-  camUserId: { type: Schema.Types.ObjectId, ref: 'cams', default: null },
   email: { type: String, required: true, unique: true, trim: true, lowercase: true },
   phone: { type: String, trim: true, required: true },
   address: { type: String, trim: true, required: true },
@@ -24,9 +23,21 @@ const communitySchema = new Schema({
       required: true,
     },
   },
+  userUpdate: [
+    {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users',
+        required: true,
+      },
+      updatedAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
   isActive: { type: Boolean, default: true },
-  creatorAdminId: { type: Schema.Types.ObjectId, ref: 'admins', default: null },
-  creatorCamId: { type: Schema.Types.ObjectId, ref: 'cams', default: null },
+  creatorId: { type: Schema.Types.ObjectId, ref: 'users', required: true }
 }, {
   collection: 'communities',
   timestamps: true,

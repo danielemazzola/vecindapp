@@ -5,6 +5,8 @@ const licenseAssignmentSchema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: 'users', required: true },
   license: { type: Schema.Types.ObjectId, ref: 'licenses', required: true },
   startDate: { type: Date, default: Date.now },
+  camType: {type: Boolean, default:null},
+  espType: {type: Boolean, default:null},
   endDate: { type: Date },
   isActive: { type: Boolean, default: true },
   remainingBeneficiaries: { type: Number, default: 0 },
