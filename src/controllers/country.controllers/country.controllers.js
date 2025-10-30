@@ -51,9 +51,19 @@ const UPDATE_COUNTRY = async (req, res, next) => {
       country: updatedCountry,
     })
   } catch (error) {
-    console.error('Error in CREATE_COUNTRY:', error);
+    console.error('Error in CREATE_COUNTRY CONTROLLER:', error);
     next(error);
   }
 }
 
-module.exports = { CREATE_COUNTRY, UPDATE_COUNTRY };
+const GET_COUNTRIES = async (req, res, next) => {
+  try {
+    const country = await COUNTRY_MODEL.find().select('code country');
+    return res.status(200).json(country)
+  } catch (error) {
+    console.error('ERROR GET_COUNTRY CONTROLLER', error)
+    next(error)
+  }
+}
+
+module.exports = { CREATE_COUNTRY, UPDATE_COUNTRY, GET_COUNTRIES };
