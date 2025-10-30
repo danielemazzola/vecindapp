@@ -14,6 +14,19 @@ const licenseSchema = new Schema({
   isActive: { type: Boolean, default: true },
   durationDays: { type: Number, required: true, default: 30 },
   creatorAdmin: { type: Schema.Types.ObjectId, ref: 'admins', required: true },
+  userUpdate: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'users',
+          required: true,
+        },
+        updatedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
 }, {
   collection: 'licenses',
   timestamps: true,

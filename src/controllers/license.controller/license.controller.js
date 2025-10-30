@@ -1,3 +1,4 @@
+const mongoose = require("mongoose")
 const { generateSkuId } = require("../../helpers/SkuId")
 const LICENSE_MODEL = require("../../models/license.model")
 
@@ -26,5 +27,32 @@ const CREATE_LICENSE = async (req, res, next) => {
   }
 }
 
+const UPDATE_LICENSE = async (req, res, next) => {
+  try {
+    const { user } = req
+    const { id } = req.params
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid ID' })
+    }
+    const updateLicense = await LICENSE_MODEL.findByIdAndUpdate(id, {
+      $set: {
+        ...req.body
+      },
+      $push: {
+        userUpdate: {
+          $each: [{ user: user._id, updatedAt: new Date() }],
+          $position: 0,
+        },
+      }
+    }, { new: true })
 
-module.exports = { CREATE_LICENSE }
+    if (!updateLicense) return res.status(404).json({ message: 'License not found' })
+    return res.status(200).json({ message: 'License updated successfully', license: updateLicense })
+
+  } catch (error) {
+    console.error('ERROR UPDATE_LICENSE', error)
+    next(error)
+  }
+}
+
+module.exports = { CREATE_LICENSE, UPDATE_LICENSE }
