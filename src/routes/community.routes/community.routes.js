@@ -4,7 +4,7 @@ const { CREATE_COMMUNITY } = require('../../controllers/community.controllers/co
 const { isAuth } = require('../../middlewares/isAuth.middleware')
 
 // CONTROL IF USER IS ADMIN OR USER HAS A LICENSES
-const authority = require('../../middlewares/authority')
+const authority = require('../../middlewares/authority.middleware')
 
 
 

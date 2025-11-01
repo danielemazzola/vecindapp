@@ -6,7 +6,7 @@ const { CREATE_COUNTRY, UPDATE_COUNTRY, GET_COUNTRIES } = require('../../control
 
 // MIDDLEWARES
 const { isAuth } = require('../../middlewares/isAuth.middleware');
-const { isAdmin } = require('../../middlewares/isAdmin');
+const { isAdmin } = require('../../middlewares/isAdmin.middleware');
 
 // CREATE COUNTRY
 COUNTRY_ROUTES.post('/create-country', isAuth, isAdmin, CREATE_COUNTRY);

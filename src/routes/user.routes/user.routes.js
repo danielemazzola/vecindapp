@@ -7,7 +7,7 @@ const { CREATE_USER, LOGIN_USER, UPDATE_USER, PROFILE_USER, UPDATE_AVATAR, UPDAT
 // MIDDLEWARES
 const { isAuth } = require('../../middlewares/isAuth.middleware');
 const { userAvatar } = require('../../middlewares/checkAvatar.middleware');
-const { isAdmin } = require('../../middlewares/isAdmin');
+const { isAdmin } = require('../../middlewares/isAdmin.middleware');
 
 
 // CREATE USER
