@@ -2,20 +2,24 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const licenseAssignmentSchema = new Schema({
-  user: { type: Schema.Types.ObjectId, ref: 'users', required: true },
   license: { type: Schema.Types.ObjectId, ref: 'licenses', required: true },
   startDate: { type: Date, default: Date.now },
-  camType: {
-    cam: { type: Boolean, default: null },
-    beneficiaries: [
-      { type: Schema.Types.ObjectId, ref: 'communities', required: true }
-    ]
-  },
-
-  espType: { type: Boolean, default: null },
   endDate: { type: Date },
   isActive: { type: Boolean, default: true },
   remainingBeneficiaries: { type: Number, default: 0 },
+  user: {
+    owner: { type: Schema.Types.ObjectId, ref: 'users', required: true },
+    beneficiaryType: { 
+      type: String, 
+      required: true, 
+      enum: ['users', 'communities'] 
+    },
+    beneficiaries: { 
+      type: Schema.Types.ObjectId, 
+      required: true, 
+      refPath: 'user.beneficiaryType' 
+    }
+  },
 }, {
   collection: 'license_assignments',
   timestamps: true,
