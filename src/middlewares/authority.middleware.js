@@ -51,7 +51,7 @@ const authority = async (req, res, next) => {
 
     // VERIFY LICENSE OWNER
     if (!checkLicense.user.owner.equals(user._id)) {
-      return res.status(403).json({ message: 'You are not the owner of this license.' });
+      return res.status(403).json({ message: 'You are not authorized to use this license.' });
     }
 
     // STEP 5: VERIFY LICENSE IS ACTIVE
