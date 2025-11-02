@@ -1,7 +1,9 @@
+const LICENSE_MODEL = require("../models/license.model")
+
 const isLicense = async (req, res, next) => {
   // CHECK LICENSE MIDDLEWARE
   try {
-    const { id } = req.paramas
+    const { id } = req.params
     const license = await LICENSE_MODEL.findById(id)
     if (!license) return res.status(404), json({ message: 'License not found' })
     req.license = license

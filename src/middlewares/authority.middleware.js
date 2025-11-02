@@ -9,59 +9,47 @@
 // 2. Otherwise, the middleware verifies whether the user has at least
 //    one valid "CAM-type" license with available beneficiary slots.
 // -------------------------------------------------------------
-
+const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Types;
 const LICENSE_ASSIGNMENT = require("../models/licenseAssignment");
 
 const authority = async (req, res, next) => {
   try {
     const { user } = req;
+    const { licenseId } = req.body
 
     // STEP 1: CHECK IF USER IS ADMIN
     // --------------------------------
     // If the user has the "admin" role, grant access immediately.
     // The `return` ensures that execution stops here.
+    if(!licenseId) {
+      return res.status(403).json({ message: 'You need to select a license.' }); 
+    }
+
     if (user.roles.includes('admin')) {
       req.roleType = 'admin';
       return next();
     }
 
-    // STEP 2: FIND ALL LICENSE ASSIGNMENTS FOR THE USER
-    // --------------------------------
-    // Look up all license assignments associated with the user's ID.
-    // The `.populate('license')` call automatically retrieves
-    // the referenced license document to avoid a second query.
-    const assignments = await LICENSE_ASSIGNMENT.find({ user: user._id, isActive: true }).populate('license');
 
-    if (!assignments.length) {
+    // STEP 2: FIND licenseId
+    const checkLicense = await LICENSE_ASSIGNMENT.findById(new ObjectId(licenseId)).populate('license')
+    console.log(checkLicense);
+    
+    if (!checkLicense) {
       return res.status(403).json({ message: 'No active licenses found for this user.' });
     }
-
-    // STEP 3: FILTER LICENSES THAT ARE CAM-TYPE
-    // --------------------------------
-    // Only users with a CAM-type license can proceed.
-    const camLicenses = assignments.filter(a => a.camType?.cam === true && a.isActive && a.license?.isActive);
-
-    if (!camLicenses.length) {
-      return res.status(403).json({ message: 'You do not have any active CAM-type licenses.' });
+    if (!checkLicense.isActive) {
+      return res.status(200).json({ message: 'License in not active.' });
     }
 
-    // STEP 4: VALIDATE LICENSE REFERENCE
-    // --------------------------------
-    // Since licenses are populated, we can directly access the license object.
-    const hasAvailableSlots = camLicenses.some(a => {
-      const currentCount = a.camType.beneficiaries.length;
-      const max = a.license.limits.maxCommunities;
-      return currentCount < max;
-    });
-
-    if (!hasAvailableSlots) {
-      return res.status(403).json({ message: 'No remaining capacity to create a new community.' });
+    if(checkLicense.user.beneficiaryType !== 'communities') {
+      return res.status(200).json({ message: 'License not permited!' });
     }
+    // --------------------------------
 
-    req.roleType = 'cam';
-    req.licenseAssignments = camLicenses;
-    next();
-
+    req.license = checkLicense
+    next()
   } catch (error) {
     // ERROR HANDLING
     // --------------------------------
