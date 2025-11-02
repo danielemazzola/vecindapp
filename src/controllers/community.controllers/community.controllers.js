@@ -8,6 +8,7 @@ const CREATE_COMMUNITY = async (req, res, next) => {
     // EXTRACT REQUIRED FIELDS FROM REQUEST BODY
     const { name, description, email, phone, address, postal_code, city, country, province } = req.body;
     const { user, license } = req;
+    let updateAssignmentLicense;
 
     // VALIDATE REQUIRED FIELDS
     if (!name || !description || !email || !phone || !address || !postal_code || !city || !country) {
@@ -15,8 +16,8 @@ const CREATE_COMMUNITY = async (req, res, next) => {
       return res.status(400).json({ message: 'All required fields must be provided.' });
     }
 
-    // CHECK IF LICENSE EXISTS AND HAS AVAILABLE BENEFICIARY SLOTS
-    if (license && license.remainingBeneficiaries > 0) {
+    // CHECK IF LICENSE EXISTS AND HAS AVAILABLE BENEFICIARY SLOTS OR USER IS ADMIN
+    if ((license && license.remainingBeneficiaries > 0) || user.roles.includes('admin')) {
 
       // FETCH GEOLOCATION DATA USING EXTERNAL SERVICE
       const geoData = await fetchGeoCode(
@@ -29,7 +30,6 @@ const CREATE_COMMUNITY = async (req, res, next) => {
 
       // VALIDATE GEOLOCATION RESPONSE
       if (!geoData?.length) {
-        // RETURN 400 BAD REQUEST IF GEOLOCATION FAILED
         return res.status(400).json({ message: 'Unable to fetch geolocation data. Please verify the address and try again.' });
       }
 
@@ -54,21 +54,23 @@ const CREATE_COMMUNITY = async (req, res, next) => {
       // SAVE COMMUNITY TO DATABASE
       await newCommunity.save();
 
-      // UPDATE LICENSE ASSIGNMENT: DECREMENT REMAINING BENEFICIARIES AND ADD COMMUNITY TO BENEFICIARIES ARRAY
-      const updateAssignmentLicense = await LICENSE_ASSIGNMENT.findByIdAndUpdate(
-        license._id,
-        {
-          $inc: { remainingBeneficiaries: -1 },
-          $push: { "user.beneficiaries": newCommunity._id }
-        },
-        { new: true } // RETURN THE UPDATED DOCUMENT
-      );
+      // IF USER IS NOT ADMIN, UPDATE LICENSE ASSIGNMENT
+      if (!user.roles.includes('admin')) {
+        updateAssignmentLicense = await LICENSE_ASSIGNMENT.findByIdAndUpdate(
+          license._id,
+          {
+            $inc: { remainingBeneficiaries: -1 },
+            $push: { "user.beneficiaries": newCommunity._id }
+          },
+          { new: true } // RETURN THE UPDATED DOCUMENT
+        );
+      }
 
       // RETURN SUCCESS RESPONSE WITH COMMUNITY AND UPDATED LICENSE
       return res.status(201).json({
         message: 'Community created successfully.',
         community: newCommunity,
-        assignmentLicense: updateAssignmentLicense
+        assignmentLicense: !user.roles.includes('admin') ? updateAssignmentLicense : null
       });
     }
 
