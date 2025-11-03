@@ -2,7 +2,11 @@ const express = require('express')
 const COMMUNITY_ROUTES = express.Router()
 
 // CONTROLLERS
-const { CREATE_COMMUNITY, REQUEST_USER_IN_COMMUNITY } = require('../../controllers/community.controllers/community.controllers')
+const {
+  CREATE_COMMUNITY,
+  REQUEST_USER_IN_COMMUNITY,
+  REQUEST_USER_IN_COMMUNITY_PENDING
+} = require('../../controllers/community.controllers/community.controllers')
 
 // MIDDLEWARE
 const { isAuth } = require('../../middlewares/isAuth.middleware')
@@ -18,6 +22,13 @@ COMMUNITY_ROUTES.post('/create-community', isAuth, authority, CREATE_COMMUNITY)
 
 // SEND REQUEST USER -> ADD IN COMMUNITY
 COMMUNITY_ROUTES.post('/request-community/:id', isAuth, REQUEST_USER_IN_COMMUNITY)
+
+// GET ALL REQUEST TO CONFIRM -> ADD IN COMMUNITY
+COMMUNITY_ROUTES.post('/request-pending-community/:id', isAuth, authority, REQUEST_USER_IN_COMMUNITY_PENDING)
+
+
+// CONFIRM REQUEST -> ADD IN COMMUNITY
+//COMMUNITY_ROUTES.post('/request-community/:id', isAuth, REQUEST_USER_IN_COMMUNITY)
 
 // GET COMMUNITY
 COMMUNITY_ROUTES.put('/update-community/:id', () => { })
