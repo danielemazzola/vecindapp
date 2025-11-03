@@ -84,4 +84,28 @@ const CREATE_COMMUNITY = async (req, res, next) => {
   }
 };
 
-module.exports = { CREATE_COMMUNITY };
+const REQUEST_USER_IN_COMMUNITY = async (req, res, next) => {
+  try {
+    const { user } = req
+    const { id } = req.params
+
+    const community = await COMMUNITY_MODEL.findByIdAndUpdate(id, {
+      $push: {
+        pendingMembersToConfirms: user._id
+      }
+    }, { new: true })
+
+    if (!community) return res.status(404).json({ message: 'Community is not exist' })
+    if (!community.isActive) return res.status(404).json({ message: 'Community is not active' })
+
+    // SEND EMAIL OR NOTIFICATION -> CAM & PRESIDENT
+    // sentEmail()
+    return res.status(201).json({ message: 'Request send successfull', community })
+
+  } catch (error) {
+    console.error('CONTROLLER REQUEST_USER_IN_COMMUNITY ERROR', error)
+    next(error)
+  }
+}
+
+module.exports = { CREATE_COMMUNITY, REQUEST_USER_IN_COMMUNITY };
