@@ -134,7 +134,10 @@ const REQUEST_USER_IN_COMMUNITY = async (req, res, next) => {
 const REQUEST_USER_IN_COMMUNITY_PENDING = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const community = await COMMUNITY_MODEL.findById(id).populate('pendingMembersToConfirms');
+    const community = await COMMUNITY_MODEL.findById(id).populate({
+      path: 'pendingMembersToConfirms',
+      select: 'name lastname phone email'
+    });
 
     if (!community) {
       return res.status(404).json({ message: 'Community not found.' });

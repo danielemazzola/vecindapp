@@ -1,60 +1,72 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
+// ----------------------
+// COMMERCIAL PROFILE SCHEMA
+// ----------------------
 const commercialProfileSchema = new Schema({
+  // LICENSE ASSIGNMENTS LINKED TO THIS PROFILE
   licenseAssignment: [{
     type: Schema.Types.ObjectId,
     ref: 'license_assignments',
     required: true,
     unique: true,
   }],
-  companyName: { type: String, required: true, trim: true },
+
+  // COMPANY INFORMATION
+  companyName: { type: String, required: true, trim: true }, // NAME OF THE COMPANY
   identification: { type: String, required: true, trim: true }, // NIF / NIE / CIF / DNI
-  contactEmail: { type: String, required: true, trim: true, lowercase: true },
-  contactPhone: { type: String, required: true, trim: true },
-  website: { type: String, trim: true },
-  address: { type: String, trim: true },
-  postalCode: { type: String, trim: true },
-  city: { type: String, trim: true },
-  province: { type: String, trim: true },
+  contactEmail: { type: String, required: true, trim: true, lowercase: true }, // CONTACT EMAIL
+  contactPhone: { type: String, required: true, trim: true }, // CONTACT PHONE
+  website: { type: String, trim: true }, // COMPANY WEBSITE
+  address: { type: String, trim: true }, // COMPANY ADDRESS
+  postalCode: { type: String, trim: true }, // POSTAL CODE
+  city: { type: String, trim: true }, // CITY
+  province: { type: String, trim: true }, // PROVINCE
   country: {
     type: Schema.Types.ObjectId,
-    ref: 'countries'
+    ref: 'countries' // LINK TO COUNTRY COLLECTION
   },
+
+  // GEOLOCATION
   location: {
     type: {
       type: String,
-      enum: ['Point'],
+      enum: ['Point'], // GEOJSON TYPE
     },
     coordinates: {
-      type: [Number], // [longitude, latitude]
+      type: [Number], // [LONGITUDE, LATITUDE]
     },
   },
 
-  // CAM || ESP
-  userType: { type: String, enum: ['cam', 'esp'], required: true },
+  // USER TYPE
+  userType: { type: String, enum: ['cam', 'esp'], required: true }, // CAM || ESP
 
-  // Control de verificación y visibilidad
-  isVerified: { type: Boolean, default: false },
-  verificationDate: { type: Date },
-  verifiedBy: { type: Schema.Types.ObjectId, ref: 'admins' },
+  // VERIFICATION AND VISIBILITY CONTROL
+  isVerified: { type: Boolean, default: false }, // IS PROFILE VERIFIED
+  verificationDate: { type: Date }, // DATE OF VERIFICATION
+  verifiedBy: { type: Schema.Types.ObjectId, ref: 'admins' }, // VERIFIED BY ADMIN
 
-  // Aditional information Marketing
-  description: { type: String, trim: true },
-  logo: { type: String, trim: true, default: 'https://via.placeholder.com/150' },
-  likes: { type: Number, default: 0 },
-  views: { type: Number, default: 0 },
-  rating: { type: Number, min: 0, max: 5, default: 0 },
+  // ADDITIONAL MARKETING INFORMATION
+  description: { type: String, trim: true }, // COMPANY DESCRIPTION
+  logo: { type: String, trim: true, default: 'https://via.placeholder.com/150' }, // COMPANY LOGO
+  likes: { type: Number, default: 0 }, // NUMBER OF LIKES
+  views: { type: Number, default: 0 }, // NUMBER OF VIEWS
+  rating: { type: Number, min: 0, max: 5, default: 0 }, // RATING FROM 0 TO 5
 
-  // Profile state
-  isActive: { type: Boolean, default: true },
+  // PROFILE STATE
+  isActive: { type: Boolean, default: true }, // IS PROFILE ACTIVE
 
 }, {
   collection: 'commercial_profiles',
-  timestamps: true,
+  timestamps: true, // CREATION AND UPDATE TIMESTAMPS
 });
 
+// CREATE 2DSPHERE INDEX FOR GEOLOCATION QUERIES
 commercialProfileSchema.index({ location: '2dsphere' });
 
-const COMMERCIAL_PROFILE = mongoose.model('commercial_profile', commercialProfileSchema)
-module.exports = COMMERCIAL_PROFILE
+// ----------------------
+// MODEL EXPORT
+// ----------------------
+const COMMERCIAL_PROFILE = mongoose.model('commercial_profile', commercialProfileSchema);
+module.exports = COMMERCIAL_PROFILE;

@@ -2,33 +2,53 @@ require('dotenv').config();
 const EXPRESS = require('express');
 const CORS = require('cors');
 
-// ROUTES
-const ENV = require('./src/config/config.env');
-const CONNECT_CLOUDINARY = require('./src/config/cloudinary');
-const CONNECT_DDBB = require('./src/config/connectDDBB');
+// ----------------------
+// CONFIGS
+// ----------------------
+const ENV = require('./src/config/config.env'); // ENVIRONMENT VARIABLES
+const CONNECT_CLOUDINARY = require('./src/config/cloudinary'); // CLOUDINARY CONFIGURATION
+const CONNECT_DDBB = require('./src/config/connectDDBB'); // DATABASE CONNECTION
 
+// ----------------------
+// INITIALIZE EXPRESS APP
+// ----------------------
 const APP = EXPRESS();
-APP.use(CORS());
-APP.use(EXPRESS.json());
-APP.use(EXPRESS.urlencoded({ extended: true }));
 
-// CONNECTS
-CONNECT_DDBB()
+// ----------------------
+// MIDDLEWARES
+// ----------------------
+APP.use(CORS()); // ENABLE CORS
+APP.use(EXPRESS.json()); // PARSE JSON REQUESTS
+APP.use(EXPRESS.urlencoded({ extended: true })); // PARSE URL-ENCODED REQUESTS
 
-// CLOUDINARY
-CONNECT_CLOUDINARY()
+// ----------------------
+// DATABASE CONNECTION
+// ----------------------
+CONNECT_DDBB();
 
+// ----------------------
+// CLOUDINARY CONFIGURATION
+// ----------------------
+CONNECT_CLOUDINARY();
+
+// ----------------------
 // MAIN ROUTES
+// ----------------------
 const ROUTES = require('./src/routes/main.routes');
-APP.use('/api', ROUTES);
+APP.use('/api', ROUTES); // PREFIX ALL ROUTES WITH /API
 
-// ERROR MANAGEMENT
+// ----------------------
+// ERROR HANDLING
+// ----------------------
 APP.use((req, res, next) => {
+  // HANDLE 404 ERRORS
   const error = new Error('Route does not exist. Please contact support.');
   error.status = 404;
   next(error);
 });
+
 APP.use((error, req, res, next) => {
+  // HANDLE GENERAL ERRORS
   console.error('Error: ', error.message);
   return res.status(error.status || 500).json({
     message:
@@ -37,7 +57,9 @@ APP.use((error, req, res, next) => {
   });
 });
 
-// CONNECTION
-APP.listen((ENV.PORT), () => {
+// ----------------------
+// START SERVER
+// ----------------------
+APP.listen(ENV.PORT, () => {
   console.log(`Server running on port ${ENV.PORT}`);
 });

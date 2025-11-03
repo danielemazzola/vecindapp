@@ -1,39 +1,80 @@
-const express = require('express')
-const COMMUNITY_ROUTES = express.Router()
+const express = require('express');
+const COMMUNITY_ROUTES = express.Router();
 
+// ----------------------
 // CONTROLLERS
+// ----------------------
 const {
   CREATE_COMMUNITY,
   REQUEST_USER_IN_COMMUNITY,
   REQUEST_USER_IN_COMMUNITY_PENDING
-} = require('../../controllers/community.controllers/community.controllers')
+} = require('../../controllers/community.controllers/community.controllers');
 
-// MIDDLEWARE
-const { isAuth } = require('../../middlewares/isAuth.middleware')
+// ----------------------
+// MIDDLEWARES
+// ----------------------
+const { isAuth } = require('../../middlewares/isAuth.middleware');
+const authority = require('../../middlewares/authority.middleware'); // CHECKS IF USER IS ADMIN OR HAS A VALID LICENSE
 
-// CONTROL IF USER IS ADMIN OR USER HAS A LICENSES
-const authority = require('../../middlewares/authority.middleware')
+// ----------------------
+// COMMUNITY ROUTES
+// ----------------------
 
+/**
+ * @route   POST /create-community
+ * @desc    CREATE A NEW COMMUNITY
+ * @access  PRIVATE (AUTHENTICATED USER WITH PERMISSIONS)
+ */
+COMMUNITY_ROUTES.post(
+  '/create-community',
+  isAuth,
+  authority,
+  CREATE_COMMUNITY
+);
 
+/**
+ * @route   POST /request-community/:id
+ * @desc    SEND A JOIN REQUEST TO A COMMUNITY
+ * @access  PRIVATE (AUTHENTICATED USER)
+ */
+COMMUNITY_ROUTES.post(
+  '/request-community/:id',
+  isAuth,
+  REQUEST_USER_IN_COMMUNITY
+);
 
+/**
+ * @route   POST /request-pending-community/:id
+ * @desc    GET ALL PENDING JOIN REQUESTS FOR A COMMUNITY
+ * @access  PRIVATE (AUTHENTICATED USER WITH PERMISSIONS)
+ */
+COMMUNITY_ROUTES.post(
+  '/request-pending-community/:id',
+  isAuth,
+  authority,
+  REQUEST_USER_IN_COMMUNITY_PENDING
+);
 
-// CREATE NEW COMMUNITY
-COMMUNITY_ROUTES.post('/create-community', isAuth, authority, CREATE_COMMUNITY)
+// ----------------------
+// PLACEHOLDER ROUTES (TO BE IMPLEMENTED)
+// ----------------------
 
-// SEND REQUEST USER -> ADD IN COMMUNITY
-COMMUNITY_ROUTES.post('/request-community/:id', isAuth, REQUEST_USER_IN_COMMUNITY)
+/**
+ * @route   PUT /update-community/:id
+ * @desc    UPDATE AN EXISTING COMMUNITY’S INFORMATION
+ * @access  PRIVATE (NOT IMPLEMENTED YET)
+ */
+COMMUNITY_ROUTES.put('/update-community/:id', (req, res) => {
+  res.status(501).json({ message: 'Endpoint under development' });
+});
 
-// GET ALL REQUEST TO CONFIRM -> ADD IN COMMUNITY
-COMMUNITY_ROUTES.post('/request-pending-community/:id', isAuth, authority, REQUEST_USER_IN_COMMUNITY_PENDING)
+/**
+ * @route   GET /get-community/:id
+ * @desc    RETRIEVE COMMUNITY DETAILS BY ID
+ * @access  PRIVATE (NOT IMPLEMENTED YET)
+ */
+COMMUNITY_ROUTES.get('/get-community/:id', (req, res) => {
+  res.status(501).json({ message: 'Endpoint under development' });
+});
 
-
-// CONFIRM REQUEST -> ADD IN COMMUNITY
-//COMMUNITY_ROUTES.post('/request-community/:id', isAuth, REQUEST_USER_IN_COMMUNITY)
-
-// GET COMMUNITY
-COMMUNITY_ROUTES.put('/update-community/:id', () => { })
-
-// UPDATE COMMUNITY
-COMMUNITY_ROUTES.get('/get-community/:id', () => { })
-
-module.exports = COMMUNITY_ROUTES
+module.exports = COMMUNITY_ROUTES;

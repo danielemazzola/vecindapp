@@ -1,18 +1,26 @@
-const express = require('express')
+const express = require('express');
 
+// ----------------------
 // CONTROLLERS
-const { PURCHASE } = require('../../controllers/purchase.controllers/purchase.controllers')
+// ----------------------
+const { PURCHASE } = require('../../controllers/purchase.controllers/purchase.controllers');
 
-//MIDDLEWARE
-const { isAuth } = require('../../middlewares/isAuth.middleware')
-const isLicense = require('../../middlewares/isLicense.middleware')
+// ----------------------
+// MIDDLEWARES
+// ----------------------
+const { isAuth } = require('../../middlewares/isAuth.middleware');
+const isLicense = require('../../middlewares/isLicense.middleware'); // CHECKS IF USER HAS A VALID LICENSE
 
-const PURCHASE_LICENSE = express.Router()
+// ----------------------
+// PURCHASE LICENSE ROUTES
+// ----------------------
+const PURCHASE_LICENSE = express.Router();
 
+/**
+ * @route   POST /purchase-license/:id
+ * @desc    PURCHASE A LICENSE BY ID
+ * @access  PRIVATE (AUTHENTICATED USER WITH VALID LICENSE)
+ */
+PURCHASE_LICENSE.post('/purchase-license/:id', isAuth, isLicense, PURCHASE);
 
-// PURCHASE LICENSE
-PURCHASE_LICENSE.post('/purchase-license/:id', isAuth, isLicense, PURCHASE)
-
-
-
-module.exports = PURCHASE_LICENSE
+module.exports = PURCHASE_LICENSE;
