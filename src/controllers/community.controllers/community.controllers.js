@@ -158,7 +158,7 @@ const GET_COMMUNITY = async (req, res, next) => {
     const { id } = req.params
     const community = await COMMUNITY_MODEL.findById(id)
     if (!community) return res.status(404).json({ message: 'Communito not found' })
-    return res.statu(201).json(community)
+    return res.status(201).json(community)
   } catch (error) {
     console.error('ERROR CONTROLLER -> GET_COMMUNITY', error)
     next(error)

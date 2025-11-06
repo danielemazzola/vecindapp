@@ -19,6 +19,7 @@ const communitySchema = new Schema({
   // MEMBERSHIP
   members: [{ type: Schema.Types.ObjectId, ref: 'users', default: [] }], // APPROVED MEMBERS
   pendingMembersToConfirms: [{ type: Schema.Types.ObjectId, ref: 'users', default: [] }], // PENDING MEMBERS
+  rejectedMembers: [{ type: Schema.Types.ObjectId, ref: 'users', default: [] }], // REJECTED MEMBERS
 
   // GEOLOCATION
   location: {
