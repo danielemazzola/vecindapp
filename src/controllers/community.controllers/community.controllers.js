@@ -150,8 +150,24 @@ const REQUEST_USER_IN_COMMUNITY_PENDING = async (req, res, next) => {
   }
 };
 
+/**
+ * RETRIEVE COMMUNITY DETAILS BY ID
+ */
+const GET_COMMUNITY = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const community = await COMMUNITY_MODEL.findById(id)
+    if (!community) return res.status(404).json({ message: 'Communito not found' })
+    return res.statu(201).json(community)
+  } catch (error) {
+    console.error('ERROR CONTROLLER -> GET_COMMUNITY', error)
+    next(error)
+  }
+}
+
 module.exports = {
   CREATE_COMMUNITY,
   REQUEST_USER_IN_COMMUNITY,
-  REQUEST_USER_IN_COMMUNITY_PENDING
+  REQUEST_USER_IN_COMMUNITY_PENDING,
+  GET_COMMUNITY
 };

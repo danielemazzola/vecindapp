@@ -7,7 +7,8 @@ const COMMUNITY_ROUTES = express.Router();
 const {
   CREATE_COMMUNITY,
   REQUEST_USER_IN_COMMUNITY,
-  REQUEST_USER_IN_COMMUNITY_PENDING
+  REQUEST_USER_IN_COMMUNITY_PENDING,
+  GET_COMMUNITY
 } = require('../../controllers/community.controllers/community.controllers');
 
 // ----------------------
@@ -55,6 +56,13 @@ COMMUNITY_ROUTES.post(
   REQUEST_USER_IN_COMMUNITY_PENDING
 );
 
+/**
+ * @route   GET /get-community/:id
+ * @desc    RETRIEVE COMMUNITY DETAILS BY ID
+ * @access  PRIVATE (NOT IMPLEMENTED YET)
+ */
+COMMUNITY_ROUTES.get('/get-community/:id', GET_COMMUNITY);
+
 // ----------------------
 // PLACEHOLDER ROUTES (TO BE IMPLEMENTED)
 // ----------------------
@@ -68,13 +76,6 @@ COMMUNITY_ROUTES.put('/update-community/:id', (req, res) => {
   res.status(501).json({ message: 'Endpoint under development' });
 });
 
-/**
- * @route   GET /get-community/:id
- * @desc    RETRIEVE COMMUNITY DETAILS BY ID
- * @access  PRIVATE (NOT IMPLEMENTED YET)
- */
-COMMUNITY_ROUTES.get('/get-community/:id', (req, res) => {
-  res.status(501).json({ message: 'Endpoint under development' });
-});
+
 
 module.exports = COMMUNITY_ROUTES;
