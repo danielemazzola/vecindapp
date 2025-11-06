@@ -16,10 +16,36 @@ const communitySchema = new Schema({
   province: { type: String, trim: true }, // PROVINCE
   country: { type: String, trim: true, required: true }, // COUNTRY
 
-  // MEMBERSHIP
-  members: [{ type: Schema.Types.ObjectId, ref: 'users', default: [] }], // APPROVED MEMBERS
-  pendingMembersToConfirms: [{ type: Schema.Types.ObjectId, ref: 'users', default: [] }], // PENDING MEMBERS
-  rejectedMembers: [{ type: Schema.Types.ObjectId, ref: 'users', default: [] }], // REJECTED MEMBERS
+  // MEMBERSHIP (IMPROVED STRUCTURE FOR MANAGING USER STATES)
+  members: [
+    {
+      // USER WHO IS PART OF THE COMMUNITY (REFERENCE TO USERS COLLECTION)
+      user: {
+        type: Schema.Types.ObjectId,
+        ref: 'users',
+        required: true
+      },
+
+      // STATUS OF THE USER IN THE COMMUNITY
+      // - "pending": USER REQUESTED TO JOIN BUT NOT YET APPROVED
+      // - "active": USER IS ACCEPTED AS A MEMBER
+      // - "rejected": USER REQUEST WAS REJECTED
+      // ADDING OR CHANGING STATES LATER IS EASY (JUST ADD NEW VALUES TO ENUM)
+      status: {
+        type: String,
+        enum: ['active', 'pending', 'rejected'],
+        default: 'pending',
+        required: true
+      },
+
+      // LAST DATE WHEN THIS USER'S MEMBERSHIP STATUS WAS UPDATED
+      // USEFUL FOR TRACKING MODERATION ACTIONS, HISTORY AND AUDIT TRAILS
+      updatedAt: {
+        type: Date,
+        default: Date.now
+      }
+    }
+  ],
 
   // GEOLOCATION
   location: {

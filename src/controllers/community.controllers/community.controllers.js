@@ -15,7 +15,7 @@ const CREATE_COMMUNITY = async (req, res, next) => {
     let updatedLicenseAssignment;
 
     // VALIDATE REQUIRED FIELDS
-    if (!name || !description || !email || !phone || !address || !postal_code || !city || !country) {
+    if (!name || !description || !email || !phone || !address || !postal_code || !city || !country || !province) {
       return res.status(400).json({ message: 'All required fields must be provided.' });
     }
 
@@ -105,12 +105,21 @@ const REQUEST_USER_IN_COMMUNITY = async (req, res, next) => {
     }
 
     // CHECK IF USER HAS ALREADY REQUESTED TO JOIN
-    if (community.pendingMembersToConfirms.includes(user._id)) {
-      return res.status(400).json({ message: 'Request already sent. Please wait for admin or CAM confirmation.' });
+    const alreadyRequested = community.members.some(
+      (member) => member.user.toString() === user._id.toString()
+    );
+
+    if (alreadyRequested) {
+      return res.status(400).json({
+        message: 'Request already sent. Please wait for admin or CAM confirmation.'
+      });
     }
 
     // ADD USER TO PENDING MEMBERS LIST
-    community.pendingMembersToConfirms.push(user._id);
+    community.members.push({
+      user: user._id,
+      status: 'pending' // DEFAULT
+    });
     await community.save();
 
     // TODO: IMPLEMENT EMAIL OR NOTIFICATION FUNCTIONALITY (TO CAM & PRESIDENT)
@@ -135,7 +144,7 @@ const REQUEST_USER_IN_COMMUNITY_PENDING = async (req, res, next) => {
   try {
     const { id } = req.params;
     const community = await COMMUNITY_MODEL.findById(id).populate({
-      path: 'pendingMembersToConfirms',
+      path: 'members.user',
       select: 'name lastname phone email'
     });
 
@@ -143,7 +152,7 @@ const REQUEST_USER_IN_COMMUNITY_PENDING = async (req, res, next) => {
       return res.status(404).json({ message: 'Community not found.' });
     }
 
-    return res.status(200).json({ requests: community.pendingMembersToConfirms });
+    return res.status(200).json({ requests: community.members });
   } catch (error) {
     console.error('CONTROLLER REQUEST_USER_IN_COMMUNITY_PENDING ERROR:', error);
     next(error);
