@@ -8,6 +8,7 @@ const {
   CREATE_COMMUNITY,
   REQUEST_USER_IN_COMMUNITY,
   REQUEST_USER_IN_COMMUNITY_PENDING,
+  CONFIRM_REQUEST_USER_IN_COMMUNITY,
   GET_COMMUNITY
 } = require('../../controllers/community.controllers/community.controllers');
 
@@ -45,15 +46,27 @@ COMMUNITY_ROUTES.post(
 );
 
 /**
- * @route   POST /request-pending-community/:id
+ * @route   GET /request-pending-community/:id
  * @desc    GET ALL PENDING JOIN REQUESTS FOR A COMMUNITY
  * @access  PRIVATE (AUTHENTICATED USER WITH PERMISSIONS)
  */
-COMMUNITY_ROUTES.post(
+COMMUNITY_ROUTES.get(
   '/request-pending-community/:id',
   isAuth,
   authority,
   REQUEST_USER_IN_COMMUNITY_PENDING
+);
+
+/**
+ * @route   PUT /request-confirms-community/:id
+ * @desc    CONFIRM REQUEST TO A COMMUNITY
+ * @access  PRIVATE (AUTHENTICATED USER)
+ */
+COMMUNITY_ROUTES.put(
+  '/confirm-request-community/:id',
+  isAuth,
+  authority,
+  CONFIRM_REQUEST_USER_IN_COMMUNITY
 );
 
 /**
@@ -75,6 +88,8 @@ COMMUNITY_ROUTES.get('/get-community/:id', GET_COMMUNITY);
 COMMUNITY_ROUTES.put('/update-community/:id', (req, res) => {
   res.status(501).json({ message: 'Endpoint under development' });
 });
+
+
 
 
 

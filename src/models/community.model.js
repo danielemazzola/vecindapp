@@ -40,10 +40,11 @@ const communitySchema = new Schema({
 
       // LAST DATE WHEN THIS USER'S MEMBERSHIP STATUS WAS UPDATED
       // USEFUL FOR TRACKING MODERATION ACTIONS, HISTORY AND AUDIT TRAILS
-      updatedAt: {
+      observation: { type: String, require: false, trim: true },
+      updatedAt: [{
         type: Date,
-        default: Date.now
-      }
+        default: Date.now,
+      }]
     }
   ],
 

@@ -143,21 +143,81 @@ const REQUEST_USER_IN_COMMUNITY = async (req, res, next) => {
 const REQUEST_USER_IN_COMMUNITY_PENDING = async (req, res, next) => {
   try {
     const { id } = req.params;
+
+    // FIND COMMUNITY BY ID AND POPULATE MEMBERS WITH USER DATA
     const community = await COMMUNITY_MODEL.findById(id).populate({
       path: 'members.user',
       select: 'name lastname phone email'
     });
 
+    // CHECK IF COMMUNITY EXISTS
     if (!community) {
       return res.status(404).json({ message: 'Community not found.' });
     }
 
-    return res.status(200).json({ requests: community.members });
+    // FILTER MEMBERS TO RETURN ONLY THOSE WITH STATUS 'PENDING'
+    const pendingRequests = community.members.filter(
+      (member) => member.status === 'pending'
+    );
+
+    // RETURN ONLY PENDING MEMBERSHIP REQUESTS
+    return res.status(200).json({ requests: pendingRequests });
   } catch (error) {
+    // LOG ERROR AND PASS TO GLOBAL ERROR HANDLER
     console.error('CONTROLLER REQUEST_USER_IN_COMMUNITY_PENDING ERROR:', error);
     next(error);
   }
 };
+
+
+/**
+ * CONFIRM_REQUEST_USER_IN_COMMUNITY
+ * Confirms a user's pending membership request in a community.
+ */
+const CONFIRM_REQUEST_USER_IN_COMMUNITY = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { request, observation } = req.body; // request = userId who requested to join
+
+    // FIND COMMUNITY BY ID
+    const community = await COMMUNITY_MODEL.findById(id);
+    if (!community) {
+      return res.status(404).json({ message: 'Community not found' });
+    }
+
+    // FIND MEMBER INSIDE COMMUNITY BY USER ID (NOT SUBDOCUMENT ID)
+    const member = community.members.find(
+      (m) => m._id && m._id.toString() === request.toString()
+    );
+
+    // VALIDATE THAT MEMBER EXISTS
+    if (!member) {
+      return res.status(404).json({ message: 'Request not found' });
+    }
+
+    // CHECK IF MEMBER STATUS IS STILL PENDING
+    if (member.status !== 'pending') {
+      return res.status(400).json({ message: 'Member status is not pending.' });
+    }
+
+    // UPDATE MEMBER STATUS AND ADD OBSERVATION
+    member.status = 'active';
+    member.observation = observation ?? 'No comments.';
+    member.updatedAt = new Date();
+
+    // SAVE UPDATED COMMUNITY DOCUMENT
+    await community.save();
+
+    // RETURN SUCCESS RESPONSE WITH UPDATED MEMBER DATA
+    return res.json({ message: 'Member confirmed successfully', member });
+  } catch (error) {
+    // LOG ERROR AND RETURN INTERNAL SERVER ERROR
+    console.error('Error confirming member request:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
 
 /**
  * RETRIEVE COMMUNITY DETAILS BY ID
@@ -166,7 +226,7 @@ const GET_COMMUNITY = async (req, res, next) => {
   try {
     const { id } = req.params
     const community = await COMMUNITY_MODEL.findById(id)
-    if (!community) return res.status(404).json({ message: 'Communito not found' })
+    if (!community) return res.status(404).json({ message: 'Community not found' })
     return res.status(201).json(community)
   } catch (error) {
     console.error('ERROR CONTROLLER -> GET_COMMUNITY', error)
@@ -178,5 +238,6 @@ module.exports = {
   CREATE_COMMUNITY,
   REQUEST_USER_IN_COMMUNITY,
   REQUEST_USER_IN_COMMUNITY_PENDING,
+  CONFIRM_REQUEST_USER_IN_COMMUNITY,
   GET_COMMUNITY
 };
