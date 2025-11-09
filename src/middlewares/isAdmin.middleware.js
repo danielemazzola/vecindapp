@@ -5,23 +5,23 @@
 // IT DENIES ACCESS IF THE USER IS NOT AN ADMIN
 const isAdmin = (req, res, next) => {
   try {
-    const { user } = req;
+    const { user } = req
 
     // ----------------------
     // CHECK ADMIN ROLE
     // ----------------------
     if (!user.roles.includes('admin')) {
-      return res.status(403).json({ message: 'Access denied. Admins only.' });
+      return res.status(403).json({ message: 'Access denied. Admins only.' })
     }
 
-    next(); // USER IS ADMIN, PROCEED TO NEXT MIDDLEWARE
+    next() // USER IS ADMIN, PROCEED TO NEXT MIDDLEWARE
   } catch (error) {
-    console.error('ERROR in isAdmin middleware:', error);
-    next(error);
+    console.error('ERROR in isAdmin middleware:', error)
+    next(error)
   }
-};
+}
 
 // ----------------------
 // EXPORT
 // ----------------------
-module.exports = { isAdmin };
+module.exports = { isAdmin }

@@ -1,7 +1,7 @@
-const fetchGeoCode = require('../../config/fetchGeoCode');
-const COMMUNITY_MODEL = require('../../models/community.model');
-const formatForURL = require('../../helpers/formatForURL');
-const LICENSE_ASSIGNMENT = require('../../models/licenseAssignment');
+const fetchGeoCode = require('../../config/fetchGeoCode')
+const COMMUNITY_MODEL = require('../../models/community.model')
+const formatForURL = require('../../helpers/formatForURL')
+const LICENSE_ASSIGNMENT = require('../../models/licenseAssignment')
 
 /**
  * CREATE_COMMUNITY
@@ -10,30 +10,57 @@ const LICENSE_ASSIGNMENT = require('../../models/licenseAssignment');
 const CREATE_COMMUNITY = async (req, res, next) => {
   try {
     // EXTRACT REQUIRED FIELDS FROM REQUEST BODY
-    const { name, description, email, phone, address, postal_code, city, country, province } = req.body;
-    const { user, license } = req;
-    let updatedLicenseAssignment;
+    const {
+      name,
+      description,
+      email,
+      phone,
+      address,
+      postal_code,
+      city,
+      country,
+      province,
+    } = req.body
+    const { user, license } = req
+    let updatedLicenseAssignment
 
     // VALIDATE REQUIRED FIELDS
-    if (!name || !description || !email || !phone || !address || !postal_code || !city || !country || !province) {
-      return res.status(400).json({ message: 'All required fields must be provided.' });
+    if (
+      !name ||
+      !description ||
+      !email ||
+      !phone ||
+      !address ||
+      !postal_code ||
+      !city ||
+      !country ||
+      !province
+    ) {
+      return res
+        .status(400)
+        .json({ message: 'All required fields must be provided.' })
     }
 
     // CHECK LICENSE AVAILABILITY OR ADMIN PRIVILEGES
-    if ((license && license.remainingBeneficiaries > 0) || user.roles.includes('admin')) {
-
+    if (
+      (license && license.remainingBeneficiaries > 0) ||
+      user.roles.includes('admin')
+    ) {
       // FETCH GEOLOCATION DATA USING EXTERNAL SERVICE
       const geoData = await fetchGeoCode(
         formatForURL(province),
         formatForURL(country),
         formatForURL(address),
         formatForURL(city),
-        formatForURL(postal_code)
-      );
+        formatForURL(postal_code),
+      )
 
       // VALIDATE GEOLOCATION RESPONSE
       if (!geoData?.length) {
-        return res.status(400).json({ message: 'Unable to fetch geolocation data. Please verify the address and try again.' });
+        return res.status(400).json({
+          message:
+            'Unable to fetch geolocation data. Please verify the address and try again.',
+        })
       }
 
       // CREATE NEW COMMUNITY DOCUMENT
@@ -49,13 +76,13 @@ const CREATE_COMMUNITY = async (req, res, next) => {
         province,
         location: {
           type: 'Point',
-          coordinates: [parseFloat(geoData[0].lon), parseFloat(geoData[0].lat)]
+          coordinates: [parseFloat(geoData[0].lon), parseFloat(geoData[0].lat)],
         },
-        creatorId: user._id
-      });
+        creatorId: user._id,
+      })
 
       // SAVE COMMUNITY TO DATABASE
-      await newCommunity.save();
+      await newCommunity.save()
 
       // UPDATE LICENSE ASSIGNMENT IF USER IS NOT ADMIN
       if (!user.roles.includes('admin')) {
@@ -63,27 +90,30 @@ const CREATE_COMMUNITY = async (req, res, next) => {
           license._id,
           {
             $inc: { remainingBeneficiaries: -1 },
-            $push: { "user.beneficiaries": newCommunity._id }
+            $push: { 'user.beneficiaries': newCommunity._id },
           },
-          { new: true } // RETURN UPDATED DOCUMENT
-        );
+          { new: true }, // RETURN UPDATED DOCUMENT
+        )
       }
 
       return res.status(201).json({
         message: 'Community created successfully.',
         community: newCommunity,
-        assignmentLicense: !user.roles.includes('admin') ? updatedLicenseAssignment : null
-      });
+        assignmentLicense: !user.roles.includes('admin')
+          ? updatedLicenseAssignment
+          : null,
+      })
     }
 
     // LICENSE HAS NO AVAILABLE BENEFICIARY SLOTS
-    return res.status(403).json({ message: 'License has no remaining beneficiary slots.' });
-
+    return res
+      .status(403)
+      .json({ message: 'License has no remaining beneficiary slots.' })
   } catch (error) {
-    console.error('ERROR CREATE_COMMUNITY -> CONTROLLER:', error);
-    next(error);
+    console.error('ERROR CREATE_COMMUNITY -> CONTROLLER:', error)
+    next(error)
   }
-};
+}
 
 /**
  * REQUEST_USER_IN_COMMUNITY
@@ -91,50 +121,50 @@ const CREATE_COMMUNITY = async (req, res, next) => {
  */
 const REQUEST_USER_IN_COMMUNITY = async (req, res, next) => {
   try {
-    const { user } = req;
-    const { id } = req.params;
+    const { user } = req
+    const { id } = req.params
 
-    const community = await COMMUNITY_MODEL.findById(id);
+    const community = await COMMUNITY_MODEL.findById(id)
 
     if (!community) {
-      return res.status(404).json({ message: 'Community does not exist.' });
+      return res.status(404).json({ message: 'Community does not exist.' })
     }
 
     if (!community.isActive) {
-      return res.status(404).json({ message: 'Community is not active.' });
+      return res.status(404).json({ message: 'Community is not active.' })
     }
 
     // CHECK IF USER HAS ALREADY REQUESTED TO JOIN
     const alreadyRequested = community.members.some(
-      (member) => member.user.toString() === user._id.toString()
-    );
+      (member) => member.user.toString() === user._id.toString(),
+    )
 
     if (alreadyRequested) {
       return res.status(400).json({
-        message: 'Request already sent. Please wait for admin or CAM confirmation.'
-      });
+        message:
+          'Request already sent. Please wait for admin or CAM confirmation.',
+      })
     }
 
     // ADD USER TO PENDING MEMBERS LIST
     community.members.push({
       user: user._id,
-      status: 'pending' // DEFAULT
-    });
-    await community.save();
+      status: 'pending', // DEFAULT
+    })
+    await community.save()
 
     // TODO: IMPLEMENT EMAIL OR NOTIFICATION FUNCTIONALITY (TO CAM & PRESIDENT)
     // e.g. sendEmailNotification(user, community);
 
     return res.status(201).json({
       message: 'Request sent successfully.',
-      community
-    });
-
+      community,
+    })
   } catch (error) {
-    console.error('CONTROLLER REQUEST_USER_IN_COMMUNITY ERROR:', error);
-    next(error);
+    console.error('CONTROLLER REQUEST_USER_IN_COMMUNITY ERROR:', error)
+    next(error)
   }
-};
+}
 
 /**
  * REQUEST_USER_IN_COMMUNITY_PENDING
@@ -142,33 +172,32 @@ const REQUEST_USER_IN_COMMUNITY = async (req, res, next) => {
  */
 const REQUEST_USER_IN_COMMUNITY_PENDING = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params
 
     // FIND COMMUNITY BY ID AND POPULATE MEMBERS WITH USER DATA
     const community = await COMMUNITY_MODEL.findById(id).populate({
       path: 'members.user',
-      select: 'name lastname phone email'
-    });
+      select: 'name lastname phone email',
+    })
 
     // CHECK IF COMMUNITY EXISTS
     if (!community) {
-      return res.status(404).json({ message: 'Community not found.' });
+      return res.status(404).json({ message: 'Community not found.' })
     }
 
     // FILTER MEMBERS TO RETURN ONLY THOSE WITH STATUS 'PENDING'
     const pendingRequests = community.members.filter(
-      (member) => member.status === 'pending'
-    );
+      (member) => member.status === 'pending',
+    )
 
     // RETURN ONLY PENDING MEMBERSHIP REQUESTS
-    return res.status(200).json({ requests: pendingRequests });
+    return res.status(200).json({ requests: pendingRequests })
   } catch (error) {
     // LOG ERROR AND PASS TO GLOBAL ERROR HANDLER
-    console.error('CONTROLLER REQUEST_USER_IN_COMMUNITY_PENDING ERROR:', error);
-    next(error);
+    console.error('CONTROLLER REQUEST_USER_IN_COMMUNITY_PENDING ERROR:', error)
+    next(error)
   }
-};
-
+}
 
 /**
  * CONFIRM_REQUEST_USER_IN_COMMUNITY
@@ -176,48 +205,46 @@ const REQUEST_USER_IN_COMMUNITY_PENDING = async (req, res, next) => {
  */
 const CONFIRM_REQUEST_USER_IN_COMMUNITY = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const { request, observation } = req.body; // request = userId who requested to join
+    const { id } = req.params
+    const { request, observation } = req.body // request = userId who requested to join
 
     // FIND COMMUNITY BY ID
-    const community = await COMMUNITY_MODEL.findById(id);
+    const community = await COMMUNITY_MODEL.findById(id)
     if (!community) {
-      return res.status(404).json({ message: 'Community not found' });
+      return res.status(404).json({ message: 'Community not found' })
     }
 
     // FIND MEMBER INSIDE COMMUNITY BY USER ID (NOT SUBDOCUMENT ID)
     const member = community.members.find(
-      (m) => m._id && m._id.toString() === request.toString()
-    );
+      (m) => m._id && m._id.toString() === request.toString(),
+    )
 
     // VALIDATE THAT MEMBER EXISTS
     if (!member) {
-      return res.status(404).json({ message: 'Request not found' });
+      return res.status(404).json({ message: 'Request not found' })
     }
 
     // CHECK IF MEMBER STATUS IS STILL PENDING
     if (member.status !== 'pending') {
-      return res.status(400).json({ message: 'Member status is not pending.' });
+      return res.status(400).json({ message: 'Member status is not pending.' })
     }
 
     // UPDATE MEMBER STATUS AND ADD OBSERVATION
-    member.status = 'active';
-    member.observation = observation ?? 'No comments.';
-    member.updatedAt = new Date();
+    member.status = 'active'
+    member.observation = observation ?? 'No comments.'
+    member.updatedAt = new Date()
 
     // SAVE UPDATED COMMUNITY DOCUMENT
-    await community.save();
+    await community.save()
 
     // RETURN SUCCESS RESPONSE WITH UPDATED MEMBER DATA
-    return res.json({ message: 'Member confirmed successfully', member });
+    return res.json({ message: 'Member confirmed successfully', member })
   } catch (error) {
     // LOG ERROR AND RETURN INTERNAL SERVER ERROR
-    console.error('Error confirming member request:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    console.error('Error confirming member request:', error)
+    return res.status(500).json({ message: 'Internal server error' })
   }
-};
-
-
+}
 
 /**
  * RETRIEVE COMMUNITY DETAILS BY ID
@@ -226,7 +253,8 @@ const GET_COMMUNITY = async (req, res, next) => {
   try {
     const { id } = req.params
     const community = await COMMUNITY_MODEL.findById(id)
-    if (!community) return res.status(404).json({ message: 'Community not found' })
+    if (!community)
+      return res.status(404).json({ message: 'Community not found' })
     return res.status(201).json(community)
   } catch (error) {
     console.error('ERROR CONTROLLER -> GET_COMMUNITY', error)
@@ -239,5 +267,5 @@ module.exports = {
   REQUEST_USER_IN_COMMUNITY,
   REQUEST_USER_IN_COMMUNITY_PENDING,
   CONFIRM_REQUEST_USER_IN_COMMUNITY,
-  GET_COMMUNITY
-};
+  GET_COMMUNITY,
+}

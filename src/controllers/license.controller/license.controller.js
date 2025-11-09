@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const { generateSkuId } = require("../../helpers/SkuId");
-const LICENSE_MODEL = require("../../models/license.model");
+const mongoose = require('mongoose')
+const { generateSkuId } = require('../../helpers/SkuId')
+const LICENSE_MODEL = require('../../models/license.model')
 
 /**
  * CREATE_LICENSE
@@ -8,37 +8,37 @@ const LICENSE_MODEL = require("../../models/license.model");
  */
 const CREATE_LICENSE = async (req, res, next) => {
   try {
-    const { user } = req;
+    const { user } = req
 
     // GENERATE UNIQUE PRODUCT KEY
-    const skuId = generateSkuId();
+    const skuId = generateSkuId()
 
     // CREATE NEW LICENSE DOCUMENT
     const license = new LICENSE_MODEL({
       ...req.body,
       productKey: skuId,
-      creatorAdmin: user._id
-    });
+      creatorAdmin: user._id,
+    })
 
     // VALIDATE CREATION
     if (!license) {
       return res.status(500).json({
-        message: 'The system failed to initialize a new license. Please try again.'
-      });
+        message:
+          'The system failed to initialize a new license. Please try again.',
+      })
     }
 
-    await license.save();
+    await license.save()
 
     return res.status(201).json({
       message: 'License created successfully.',
-      license
-    });
-
+      license,
+    })
   } catch (error) {
-    console.error('ERROR IN CREATE_LICENSE CONTROLLER:', error);
-    next(error);
+    console.error('ERROR IN CREATE_LICENSE CONTROLLER:', error)
+    next(error)
   }
-};
+}
 
 /**
  * UPDATE_LICENSE
@@ -46,12 +46,12 @@ const CREATE_LICENSE = async (req, res, next) => {
  */
 const UPDATE_LICENSE = async (req, res, next) => {
   try {
-    const { user } = req;
-    const { id } = req.params;
+    const { user } = req
+    const { id } = req.params
 
     // VALIDATE ID FORMAT
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: 'Invalid license ID.' });
+      return res.status(400).json({ message: 'Invalid license ID.' })
     }
 
     // TODO: VALIDATE THAT UPDATE DOES NOT MODIFY RESTRICTED FIELDS (E.G. productKey, creatorAdmin)
@@ -64,29 +64,28 @@ const UPDATE_LICENSE = async (req, res, next) => {
         $push: {
           userUpdate: {
             $each: [{ user: user._id, updatedAt: new Date() }],
-            $position: 0
-          }
-        }
+            $position: 0,
+          },
+        },
       },
-      { new: true } // RETURN UPDATED DOCUMENT
-    );
+      { new: true }, // RETURN UPDATED DOCUMENT
+    )
 
     if (!updatedLicense) {
-      return res.status(404).json({ message: 'License not found.' });
+      return res.status(404).json({ message: 'License not found.' })
     }
 
     return res.status(200).json({
       message: 'License updated successfully.',
-      license: updatedLicense
-    });
-
+      license: updatedLicense,
+    })
   } catch (error) {
-    console.error('ERROR IN UPDATE_LICENSE CONTROLLER:', error);
-    next(error);
+    console.error('ERROR IN UPDATE_LICENSE CONTROLLER:', error)
+    next(error)
   }
-};
+}
 
 module.exports = {
   CREATE_LICENSE,
-  UPDATE_LICENSE
-};
+  UPDATE_LICENSE,
+}

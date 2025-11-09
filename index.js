@@ -1,65 +1,65 @@
-require('dotenv').config();
-const EXPRESS = require('express');
-const CORS = require('cors');
+require('dotenv').config()
+const EXPRESS = require('express')
+const CORS = require('cors')
 
 // ----------------------
 // CONFIGS
 // ----------------------
-const ENV = require('./src/config/config.env'); // ENVIRONMENT VARIABLES
-const CONNECT_CLOUDINARY = require('./src/config/cloudinary'); // CLOUDINARY CONFIGURATION
-const CONNECT_DDBB = require('./src/config/connectDDBB'); // DATABASE CONNECTION
+const ENV = require('./src/config/config.env') // ENVIRONMENT VARIABLES
+const CONNECT_CLOUDINARY = require('./src/config/cloudinary') // CLOUDINARY CONFIGURATION
+const CONNECT_DDBB = require('./src/config/connectDDBB') // DATABASE CONNECTION
 
 // ----------------------
 // INITIALIZE EXPRESS APP
 // ----------------------
-const APP = EXPRESS();
+const APP = EXPRESS()
 
 // ----------------------
 // MIDDLEWARES
 // ----------------------
-APP.use(CORS()); // ENABLE CORS
-APP.use(EXPRESS.json()); // PARSE JSON REQUESTS
-APP.use(EXPRESS.urlencoded({ extended: true })); // PARSE URL-ENCODED REQUESTS
+APP.use(CORS()) // ENABLE CORS
+APP.use(EXPRESS.json()) // PARSE JSON REQUESTS
+APP.use(EXPRESS.urlencoded({ extended: true })) // PARSE URL-ENCODED REQUESTS
 
 // ----------------------
 // DATABASE CONNECTION
 // ----------------------
-CONNECT_DDBB();
+CONNECT_DDBB()
 
 // ----------------------
 // CLOUDINARY CONFIGURATION
 // ----------------------
-CONNECT_CLOUDINARY();
+CONNECT_CLOUDINARY()
 
 // ----------------------
 // MAIN ROUTES
 // ----------------------
-const ROUTES = require('./src/routes/main.routes');
-APP.use('/api', ROUTES); // PREFIX ALL ROUTES WITH /API
+const ROUTES = require('./src/routes/main.routes')
+APP.use('/api', ROUTES) // PREFIX ALL ROUTES WITH /API
 
 // ----------------------
 // ERROR HANDLING
 // ----------------------
 APP.use((req, res, next) => {
   // HANDLE 404 ERRORS
-  const error = new Error('Route does not exist. Please contact support.');
-  error.status = 404;
-  next(error);
-});
+  const error = new Error('Route does not exist. Please contact support.')
+  error.status = 404
+  next(error)
+})
 
 APP.use((error, req, res, next) => {
   // HANDLE GENERAL ERRORS
-  console.error('Error: ', error.message);
+  console.error('Error: ', error.message)
   return res.status(error.status || 500).json({
     message:
       error.message ||
       'There was a problem with the server. Please try again later.',
-  });
-});
+  })
+})
 
 // ----------------------
 // START SERVER
 // ----------------------
 APP.listen(ENV.PORT, () => {
-  console.log(`Server running on port ${ENV.PORT}`);
-});
+  console.log(`Server running on port ${ENV.PORT}`)
+})

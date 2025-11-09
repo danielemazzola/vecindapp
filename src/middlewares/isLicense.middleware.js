@@ -1,4 +1,4 @@
-const LICENSE_MODEL = require("../models/license.model");
+const LICENSE_MODEL = require('../models/license.model')
 
 // ----------------------
 // ISLICENSE MIDDLEWARE
@@ -7,32 +7,32 @@ const LICENSE_MODEL = require("../models/license.model");
 // IT ATTACHES THE LICENSE TO req.license IF FOUND
 const isLicense = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params
 
     // ----------------------
     // FETCH LICENSE FROM DATABASE
     // ----------------------
-    const license = await LICENSE_MODEL.findById(id);
+    const license = await LICENSE_MODEL.findById(id)
 
     // ----------------------
     // CHECK IF LICENSE EXISTS
     // ----------------------
     if (!license) {
-      return res.status(404).json({ message: 'License not found' });
+      return res.status(404).json({ message: 'License not found' })
     }
 
     // ----------------------
     // ATTACH LICENSE TO REQUEST
     // ----------------------
-    req.license = license;
-    next(); // LICENSE FOUND, PROCEED TO NEXT MIDDLEWARE
+    req.license = license
+    next() // LICENSE FOUND, PROCEED TO NEXT MIDDLEWARE
   } catch (error) {
-    console.error('ERROR MIDDLEWARE ISLICENSE', error);
-    next(error);
+    console.error('ERROR MIDDLEWARE ISLICENSE', error)
+    next(error)
   }
-};
+}
 
 // ----------------------
 // EXPORT
 // ----------------------
-module.exports = isLicense;
+module.exports = isLicense

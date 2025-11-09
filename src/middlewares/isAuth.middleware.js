@@ -1,5 +1,5 @@
-const { VERIFY_TOKEN } = require("../config/jsonwebtoken");
-const USER_MODEL = require("../models/user.model");
+const { VERIFY_TOKEN } = require('../config/jsonwebtoken')
+const USER_MODEL = require('../models/user.model')
 
 // ----------------------
 // ISAUTH MIDDLEWARE
@@ -11,36 +11,37 @@ const isAuth = async (req, res, next) => {
     // ----------------------
     // EXTRACT TOKEN FROM HEADERS
     // ----------------------
-    const token = req.headers.authorization && req.headers.authorization?.split(' ')[1];
+    const token =
+      req.headers.authorization && req.headers.authorization?.split(' ')[1]
     if (!token) {
-      return res.status(401).json({ message: 'Authorization token required.' });
+      return res.status(401).json({ message: 'Authorization token required.' })
     }
 
     // ----------------------
     // VERIFY TOKEN
     // ----------------------
-    const isToken = VERIFY_TOKEN(token);
+    const isToken = VERIFY_TOKEN(token)
 
     // ----------------------
     // FETCH USER FROM DATABASE
     // ----------------------
-    const user = await USER_MODEL.findById(isToken.id).select('-password');
+    const user = await USER_MODEL.findById(isToken.id).select('-password')
     if (!user) {
-      return res.status(401).json({ message: 'User does not exist.' });
+      return res.status(401).json({ message: 'User does not exist.' })
     }
 
     // ----------------------
     // ATTACH USER TO REQUEST
     // ----------------------
-    req.user = user;
-    next(); // USER IS AUTHENTICATED, PROCEED TO NEXT MIDDLEWARE
+    req.user = user
+    next() // USER IS AUTHENTICATED, PROCEED TO NEXT MIDDLEWARE
   } catch (error) {
-    console.error('MIDDLEWARE_isAuth error:', error);
-    next(error);
+    console.error('MIDDLEWARE_isAuth error:', error)
+    next(error)
   }
-};
+}
 
 // ----------------------
 // EXPORT
 // ----------------------
-module.exports = { isAuth };
+module.exports = { isAuth }
