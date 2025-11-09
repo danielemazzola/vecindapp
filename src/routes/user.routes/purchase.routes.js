@@ -23,11 +23,6 @@ const PURCHASE_LICENSE = express.Router()
  * @desc    PURCHASE A LICENSE BY ID
  * @access  PRIVATE (AUTHENTICATED USER WITH VALID LICENSE)
  */
-PURCHASE_LICENSE.post(
-  '/purchase-license/:id',
-  isAuth,
-  isLicense,
-  /**MIDDLEWARE PAYMENT */ PURCHASE,
-)
+PURCHASE_LICENSE.post('/purchase-license/:id', isAuth, isLicense, PURCHASE)
 
 module.exports = PURCHASE_LICENSE

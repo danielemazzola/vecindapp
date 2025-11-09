@@ -6,6 +6,10 @@ const LICENSE_ASSIGNMENT = require('../../models/licenseAssignment')
  */
 const PURCHASE = async (req, res, next) => {
   try {
+    // TODO: IMPLEMENT PAYMENT LOGIC HERE
+    // e.g. Integrate with Stripe, PayPal, or internal payment system
+    // END PAYMENT LOGIC
+
     const { user, license } = req
 
     // VALIDATE REQUIRED DATA
