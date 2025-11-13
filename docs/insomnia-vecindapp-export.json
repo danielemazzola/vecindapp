@@ -1,0 +1,148 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-11-13T00:00:00Z",
+  "__export_source": "insomnia.desktop.app:2025.5.0",
+  "resources": [
+    {
+      "_id": "wrk_vecindapp",
+      "_type": "workspace",
+      "name": "VecindApp API",
+      "description": "Workspace with basic requests for VecindApp backend"
+    },
+    {
+      "_id": "env_vecindapp",
+      "_type": "environment",
+      "parentId": "wrk_vecindapp",
+      "name": "Base Environment",
+      "data": {
+        "BASE_URL": "http://localhost:3000/api",
+        "JWT": ""
+      }
+    },
+    {
+      "_id": "req_create_user",
+      "_type": "request",
+      "parentId": "wrk_vecindapp",
+      "name": "Create User",
+      "method": "POST",
+      "url": "{{ BASE_URL }}/users/create-user",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Juan Perez\",\n  \"email\": \"juan@example.com\",\n  \"password\": \"MiPass123\",\n  \"roles\": [\"user\"]\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }]
+    },
+    {
+      "_id": "req_login",
+      "_type": "request",
+      "parentId": "wrk_vecindapp",
+      "name": "Login",
+      "method": "POST",
+      "url": "{{ BASE_URL }}/users/login",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"juan@example.com\",\n  \"password\": \"MiPass123\"\n}"
+      },
+      "headers": [{ "name": "Content-Type", "value": "application/json" }]
+    },
+    {
+      "_id": "req_create_community",
+      "_type": "request",
+      "parentId": "wrk_vecindapp",
+      "name": "Create Community",
+      "method": "POST",
+      "url": "{{ BASE_URL }}/community/create-community",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Residencial Los Alamos\",\n  \"description\": \"Comunidad residencial con áreas verdes y zona recreativa\",\n  \"email\": \"losalamos@community.com\",\n  \"phone\": \"+34 123 456 789\",\n  \"address\": \"Calle Principal 123\",\n  \"postal_code\": \"28001\",\n  \"city\": \"Madrid\",\n  \"country\": \"Spain\",\n  \"province\": \"Madrid\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ JWT }}" }
+      ]
+    },
+    {
+      "_id": "req_create_license",
+      "_type": "request",
+      "parentId": "wrk_vecindapp",
+      "name": "Create License",
+      "method": "POST",
+      "url": "{{ BASE_URL }}/licenses/create-license",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Basic\",\n  \"details\": { \"userType\": \"community\", \"maxAllowed\": 10 },\n  \"price\": 0\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ JWT }}" }
+      ]
+    },
+    {
+      "_id": "req_profile",
+      "_type": "request",
+      "parentId": "wrk_vecindapp",
+      "name": "Get Profile",
+      "method": "GET",
+      "url": "{{ BASE_URL }}/users/profile",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ JWT }}" }]
+    },
+    {
+      "_id": "req_purchase_license",
+      "_type": "request",
+      "parentId": "wrk_vecindapp",
+      "name": "Purchase License",
+      "method": "POST",
+      "url": "{{ BASE_URL }}/secure/purchase/purchase-license/{{ LICENSE_ID }}",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"paymentMethod\": \"stripe\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ JWT }}" }
+      ]
+    },
+    {
+      "_id": "req_create_country",
+      "_type": "request",
+      "parentId": "wrk_vecindapp",
+      "name": "Create Country",
+      "method": "POST",
+      "url": "{{ BASE_URL }}/countries/create-country",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Spain\",\n  \"code\": \"ES\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ JWT }}" }
+      ]
+    },
+    {
+      "_id": "req_update_country",
+      "_type": "request",
+      "parentId": "wrk_vecindapp",
+      "name": "Update Country",
+      "method": "PUT",
+      "url": "{{ BASE_URL }}/countries/update-country/{{ COUNTRY_ID }}",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"España\",\n  \"code\": \"ES\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ JWT }}" }
+      ]
+    },
+    {
+      "_id": "req_get_countries",
+      "_type": "request",
+      "parentId": "wrk_vecindapp",
+      "name": "Get Countries",
+      "method": "GET",
+      "url": "{{ BASE_URL }}/countries/get-countries",
+      "headers": []
+    }
+  ]
+}
