@@ -1,5 +1,5 @@
 const JWT = require('jsonwebtoken')
-const { JWT_SECRET } = require('./config.env')
+const { JWT_SECRET } = require('./env.config')
 
 const CREATE_TOKEN = (id) => {
   if (!id) {

@@ -1,7 +1,7 @@
-const fetchGeoCode = require('../../config/fetchGeoCode')
+const fetchGeoCode = require('../../config/geocode.config')
 const COMMUNITY_MODEL = require('../../models/community.model')
-const formatForURL = require('../../helpers/formatForURL')
-const LICENSE_ASSIGNMENT = require('../../models/licenseAssignment')
+const formatForURL = require('../../helpers/format-url')
+const LICENSE_ASSIGNMENT = require('../../models/license-assignment.model')
 
 /**
  * CREATE_COMMUNITY

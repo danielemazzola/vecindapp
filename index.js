@@ -5,9 +5,9 @@ const CORS = require('cors')
 // ----------------------
 // CONFIGS
 // ----------------------
-const ENV = require('./src/config/config.env') // ENVIRONMENT VARIABLES
-const CONNECT_CLOUDINARY = require('./src/config/cloudinary') // CLOUDINARY CONFIGURATION
-const CONNECT_DDBB = require('./src/config/connectDDBB') // DATABASE CONNECTION
+const ENV = require('./src/config/env.config') // ENVIRONMENT VARIABLES
+const CONNECT_CLOUDINARY = require('./src/config/cloudinary.config') // CLOUDINARY CONFIGURATION
+const CONNECT_DDBB = require('./src/config/database.config') // DATABASE CONNECTION
 
 // ----------------------
 // INITIALIZE EXPRESS APP

@@ -15,7 +15,7 @@ const {
 // ----------------------
 // MIDDLEWARES
 // ----------------------
-const { isAuth } = require('../../middlewares/isAuth.middleware')
+const { isAuth } = require('../../middlewares/is-auth.middleware')
 const authority = require('../../middlewares/authority.middleware') // CHECKS IF USER IS ADMIN OR HAS A VALID LICENSE
 
 // ----------------------

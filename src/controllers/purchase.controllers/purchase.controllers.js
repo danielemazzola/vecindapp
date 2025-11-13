@@ -1,4 +1,4 @@
-const LICENSE_ASSIGNMENT = require('../../models/licenseAssignment')
+const LICENSE_ASSIGNMENT = require('../../models/license-assignment.model')
 
 /**
  * PURCHASE

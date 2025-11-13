@@ -1,5 +1,5 @@
 const cloudinary = require('cloudinary').v2
-const ENV = require('./config.env')
+const ENV = require('./env.config')
 
 const CONNECT_CLOUDINARY = () => {
   cloudinary.config({

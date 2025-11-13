@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const { generateSkuId } = require('../../helpers/SkuId')
+const { generateSkuId } = require('../../helpers/sku-id')
 const LICENSE_MODEL = require('../../models/license.model')
 
 /**

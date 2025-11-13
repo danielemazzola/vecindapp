@@ -1,4 +1,4 @@
-const { VERIFY_TOKEN } = require('../config/jsonwebtoken')
+const { VERIFY_TOKEN } = require('../config/jwt.config')
 const USER_MODEL = require('../models/user.model')
 
 // ----------------------

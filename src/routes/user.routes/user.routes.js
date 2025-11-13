@@ -16,9 +16,9 @@ const {
 // ----------------------
 // MIDDLEWARES
 // ----------------------
-const { isAuth } = require('../../middlewares/isAuth.middleware') // CHECKS IF USER IS AUTHENTICATED
-const { userAvatar } = require('../../middlewares/checkAvatar.middleware') // HANDLES AVATAR UPLOAD
-const { isAdmin } = require('../../middlewares/isAdmin.middleware') // CHECKS IF USER IS ADMIN
+const { isAuth } = require('../../middlewares/is-auth.middleware') // CHECKS IF USER IS AUTHENTICATED
+const { userAvatar } = require('../../middlewares/check-avatar.middleware') // HANDLES AVATAR UPLOAD
+const { isAdmin } = require('../../middlewares/is-admin.middleware') // CHECKS IF USER IS ADMIN
 
 // ----------------------
 // USER ROUTES

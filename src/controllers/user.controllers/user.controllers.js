@@ -1,10 +1,10 @@
 const bcrypt = require('bcrypt')
 const USER_MODEL = require('../../models/user.model')
 const COUNTRY_MODEL = require('../../models/country.model')
-const { CREATE_TOKEN } = require('../../config/jsonwebtoken')
-const fetchGeoCode = require('../../config/fetchGeoCode')
-const formatForURL = require('../../helpers/formatForURL')
-const { deleteImg } = require('../../helpers/delete.avatar')
+const { CREATE_TOKEN } = require('../../config/jwt.config')
+const fetchGeoCode = require('../../config/geocode.config')
+const formatForURL = require('../../helpers/format-url')
+const { deleteImg } = require('../../helpers/delete-avatar')
 
 /**
  * CREATE_USER

@@ -10,8 +10,8 @@ const {
 // ----------------------
 // MIDDLEWARES
 // ----------------------
-const { isAuth } = require('../../middlewares/isAuth.middleware')
-const isLicense = require('../../middlewares/isLicense.middleware') // CHECKS IF USER HAS A VALID LICENSE
+const { isAuth } = require('../../middlewares/is-auth.middleware')
+const isLicense = require('../../middlewares/is-license.middleware') // CHECKS IF USER HAS A VALID LICENSE
 
 // ----------------------
 // PURCHASE LICENSE ROUTES

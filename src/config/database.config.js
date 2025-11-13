@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const ENV = require('./config.env')
+const ENV = require('./env.config')
 
 const CONNECT_DDBB = async (req, res, next) => {
   try {

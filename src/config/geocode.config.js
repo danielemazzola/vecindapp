@@ -1,4 +1,4 @@
-const config = require('../config/config.env')
+const config = require('./env.config')
 
 const fetchGeoCode = async (
   newProvince,

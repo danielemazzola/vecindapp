@@ -13,8 +13,8 @@ const {
 // ----------------------
 // MIDDLEWARES
 // ----------------------
-const { isAuth } = require('../../middlewares/isAuth.middleware')
-const { isAdmin } = require('../../middlewares/isAdmin.middleware') // CHECKS IF USER IS ADMIN
+const { isAuth } = require('../../middlewares/is-auth.middleware')
+const { isAdmin } = require('../../middlewares/is-admin.middleware') // CHECKS IF USER IS ADMIN
 
 // ----------------------
 // COUNTRY ROUTES

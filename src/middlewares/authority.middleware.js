@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const { ObjectId } = mongoose.Types
-const LICENSE_ASSIGNMENT = require('../models/licenseAssignment')
+const LICENSE_ASSIGNMENT = require('../models/license-assignment.model')
 
 // ----------------------
 // AUTHORITY MIDDLEWARE
