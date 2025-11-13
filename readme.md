@@ -1,5 +1,6 @@
 backend/
-├─ node_modules
+├─ node_modules/
+│
 ├─ src/
 │ ├─ config/
 │ │ ├─ cloudinary.js
@@ -7,19 +8,55 @@ backend/
 │ │ ├─ connectDDBB.js
 │ │ ├─ fetchGeoCode.js
 │ │ └─ jsonwebtoken.js
-│ ├─ controllers/ # Lógica de negocio
-│ ├─ helpers/ # Funciones auxiliares
-│ ├─ middlewares/ # Middlewares de Express
-│ ├─ models/ # Modelos de base de datos
-│ └─ routes/ # Rutas de la API
-│ ├─ main.routes.js
-│ ├─ user.routes/
+│ │
+│ ├─ controllers/
+│ │ ├─ community.controllers/
+│ │ │ └─ community.controllers.js
+│ │ ├─ country.controllers/
+│ │ │ └─ country.controllers.js
+│ │ ├─ license.controllers/
+│ │ │ └─ license.controllers.js
+│ │ ├─ purchase.controllers/
+│ │ │ └─ purchase.controllers.js
+│ │ └─ user.controllers/
+│ │ └─ user.controllers.js
+│ │
+│ ├─ helpers/
+│ │ ├─ delete.avatar.js
+│ │ ├─ formatForURL.js
+│ │ └─ skyId.js
+│ │
+│ ├─ middlewares/
+│ │ ├─ authority.middleware.js
+│ │ ├─ checkAvatar.middleware.js
+│ │ ├─ isAdmin.middleware.js
+│ │ ├─ isAuth.middleware.js
+│ │ └─ isLicense.middleware.js
+│ │
+│ ├─ models/
+│ │ ├─ commercialProfile.js
+│ │ ├─ community.model.js
+│ │ ├─ country.model.js
+│ │ ├─ license.model.js
+│ │ ├─ licenseAssignment.js
+│ │ ├─ survey.model.js
+│ │ └─ user.model.js
+│ │
+│ └─ routes/
+│ ├─ community.routes/
+│ │ └─ community.routes.js
 │ ├─ country.routes/
+│ │ └─ country.routes.js
 │ ├─ license.routes/
-│ └─ community.routes/
-├─ .env # Variables de entorno
+│ │ └─ license.routes.js
+│ ├─ user.routes/
+│ │ └─ user.routes.js
+│ ├─ purchase.routes.js
+│ └─ main.routes.js
+│
+├─ .env  
 ├─ .gitignore
-├─ index.js # Entry point
+├─ .prettierrc
+├─ index.js  
 ├─ package.json
-├─ package-lock.json
-└─ tsconfig.json
+└─ package-lock.json
